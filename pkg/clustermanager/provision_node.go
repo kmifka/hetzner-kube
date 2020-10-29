@@ -114,7 +114,6 @@ func (provisioner *NodeProvisioner) waitForCloudInitCompletion() error {
 	// this file created only when cloud-init finished its tasks
 	cloudInitScript := `
 #!/bin/bash
-
 # timout is 10 min, return true immediately if ok, otherwise wait timout
 # if cloud-init not very complex usually takes 2-3 min to completion
 for i in {1..200}
@@ -177,12 +176,6 @@ func (provisioner *NodeProvisioner) preparePackages() error {
 		return err
 	}
 
-	// wireguard
-	_, err = provisioner.communicator.RunCmd(provisioner.node, "add-apt-repository ppa:wireguard/wireguard -y")
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 func (provisioner *NodeProvisioner) prepareKubernetes() error {
@@ -233,7 +226,7 @@ func (provisioner *NodeProvisioner) updateAndInstall() error {
 	}
 
 	provisioner.eventService.AddEvent(provisioner.node.Name, "installing packages")
-	command := fmt.Sprintf("apt-get install -y docker-ce kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 kubernetes-cni=0.7.5-00 wireguard linux-headers-$(uname -r) linux-headers-virtual",
+	command := fmt.Sprintf("apt-get install -y docker-ce kubelet=%s-00 kubeadm=%s-00 kubectl=%s-00 kubernetes-cni=0.7.5-00 wireguard wireguard-tools linux-headers-$(uname -r) linux-headers-virtual",
 		provisioner.kubernetesVersion, provisioner.kubernetesVersion, provisioner.kubernetesVersion)
 	_, err = provisioner.communicator.RunCmd(provisioner.node, command)
 	if err != nil {
